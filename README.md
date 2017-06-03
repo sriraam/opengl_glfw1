@@ -5,18 +5,14 @@ porting my projects to glfw
 glfw configuration:
 
 In VC++ Directories // add 1.include dir, 2.Lib dir
-
 In C/C++ -> General in additoinal include dir //include dir,
-
 In Linker -> Input in additional dependancies //add opengl32.lib;glfw3.lib
 
 
 glad configuration:
 
 In VC++ Directories add include dir,
-
 In C/C++ -> General in additoinal include dir //include dir,
-
 Additionaly, add the glad.c(can be found in the glad folder) to the project
 
 
