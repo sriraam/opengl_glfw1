@@ -74,8 +74,8 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
-    <IncludePath>C:\opengl_files\glad\include;C:\opengl_files\glfw-wrappers\glfw\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\opengl_files\glfw-wrappers\glfw\lib-vc2015;$(LibraryPath)</LibraryPath>
+    <IncludePath>C:\opengl_files\DevIL-Windows-SDK-1.8.0\DevIL Windows SDK\include;C:\opengl_files\glad\include;C:\opengl_files\glfw-wrappers\glfw\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\opengl_files\DevIL-Windows-SDK-1.8.0\DevIL Windows SDK\lib;C:\opengl_files\glfw-wrappers\glfw\lib-vc2015;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
@@ -105,13 +105,14 @@
       <Optimization>Disabled</Optimization>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>C:\opengl_files\glfw-wrappers\glfw\include;C:\opengl_files\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>C:\opengl_files\DevIL-Windows-SDK-1.8.0\DevIL Windows SDK\include;C:\opengl_files\glfw-wrappers\glfw\include;C:\opengl_files\glad\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <AdditionalUsingDirectories>%(AdditionalUsingDirectories)</AdditionalUsingDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;glfw3.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>opengl32.lib;glfw3.lib;DevIL.lib;ILU.lib;ILUT.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>C:\opengl_files\DevIL-Windows-SDK-1.8.0\DevIL Windows SDK\lib\x64\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -153,6 +154,24 @@
   <ItemGroup>
     <ClCompile Include="glad.c" />
     <ClCompile Include="Source.cpp" />
+    <ClCompile Include="texture.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shader.h" />
+    <ClInclude Include="texture.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="container2.png" />
+    <Image Include="floor.jpg" />
+    <Image Include="wooden_texture.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="fragmentshader_floor.frag" />
+    <None Include="fragmentshader_screen.frag" />
+    <None Include="fragment_shader.frag" />
+    <None Include="vertexshader_floor.vert" />
+    <None Include="vertexshader_screen.vert" />
+    <None Include="vertex_shader.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

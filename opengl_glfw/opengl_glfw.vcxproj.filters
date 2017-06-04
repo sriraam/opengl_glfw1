@@ -21,5 +21,47 @@
     <ClCompile Include="glad.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="shader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="container2.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="floor.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="wooden_texture.jpg">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="fragment_shader.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="fragmentshader_floor.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="fragmentshader_screen.frag">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="vertex_shader.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="vertexshader_floor.vert">
+      <Filter>Source Files</Filter>
+    </None>
+    <None Include="vertexshader_screen.vert">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>
