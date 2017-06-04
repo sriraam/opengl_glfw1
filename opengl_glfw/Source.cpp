@@ -44,9 +44,10 @@ GLuint renderbuf;
 
 texture Wood_texture, floor_texture;
 
-shader shader_main;
-shader shader_floor;
+//shader shader_main;
+//shader shader_floor;
 shader shader_screen;
+shader shader_triangle;
 
 //GLuint g_ShaderProgram = 0;
 //glGenVertexArrays(1, &VertexArrayID);
@@ -98,9 +99,10 @@ int main()
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
 	//shader shader_main;
-	shader_main.loadshader("vertex_shader.vert", "fragment_shader.frag");
-	shader_floor.loadshader("vertexshader_floor.vert", "fragmentshader_floor.frag");
-	shader_screen.loadshader("vertexshader_screen.vert", "fragmentshader_screen.frag"); 
+	//shader_main.loadshader("vertex_shader.vert", "fragment_shader.frag");
+	//shader_floor.loadshader("vertexshader_floor.vert", "fragmentshader_floor.frag");
+	shader_screen.loadshader("vertexshader_screen.vert", "fragmentshader_screen.frag");
+	shader_triangle.loadshader("vertex_tri.vert", "fragment_tri.frag");
 	init();
 
 	// render loop
@@ -122,7 +124,7 @@ int main()
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
-	glDeleteFramebuffers(1, &framebuffer);
+	//glDeleteFramebuffers(1, &framebuffer);
 	glfwTerminate();
 	return 0;
 }
@@ -134,31 +136,41 @@ void render()
 		// draw as wireframe
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		// Camera matrix
-		View = glm::lookAt(
+		/*View = glm::lookAt(
 			glm::vec3(camX, camY, camZ), // Camera is at (4,3,3), in World Space
 			glm::vec3(0, 0, 0), // and looks at the origin
 			glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
 		);
 
 		Model = glm::mat4();
-
-		glClearColor(0.0f, 1.0f, 0.1f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		*/
+		
 
 
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
+		glClearColor(0.0f, 1.0f, 0.1f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 		
-		glEnable(GL_DEPTH_TEST);
+		//glEnable(GL_DEPTH_TEST);
 
-		shader_main.Use();
+		shader_triangle.Use();
+
+		//simple triangle
+		glBindVertexArray(VertexArrayID);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(0);
+
+
+
+	/*	shader_main.Use();
 
 		glUniformMatrix4fv(glGetUniformLocation(shader_main.program, "view"), 1, GL_FALSE, glm::value_ptr(View));
 		glUniformMatrix4fv(glGetUniformLocation(shader_main.program, "projection"), 1, GL_FALSE, glm::value_ptr(Projection));
 
 
-		//simple triangle
+		
 
 
 		//cube_vao:
@@ -189,11 +201,12 @@ void render()
 		glDrawArrays(GL_TRIANGLES, 0, 6); // Starting from vertex 0; 3 vertices total -> 1 triangle
 		glBindVertexArray(0);
 
+		*/
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 		//glClear(GL_COLOR_BUFFER_BIT);
-		//glClearColor(1, 1, 1, 1);
+		glClearColor(1, 1, 1, 1);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		
 		
@@ -232,10 +245,7 @@ void init() {
 	//Projection = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 100.0f);
 	// some GL settings
 
-	glEnable(GL_CULL_FACE);
-	//glEnable(GL_MULTISAMPLE);
-	//glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-
+	//glEnable(GL_CULL_FACE);
 
 
 	//So we need three 3D points in order to make a triangle
@@ -319,7 +329,7 @@ void init() {
 		1.0f,  1.0f,0.0f,  1.0f, 1.0f
 
 	};
-
+/*
 	//wooden texture
 	Wood_texture.loadtexture("wooden_texture.jpg");
 
@@ -346,21 +356,20 @@ void init() {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
+	*/
 
-
-
-	/*
+	
 	glGenVertexArrays(1, &VertexArrayID);
 	glGenBuffers(1, &VertexBuffer);
 	glBindVertexArray(VertexArrayID);
 	glBindBuffer(GL_ARRAY_BUFFER, VertexBuffer);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(g_Vertex_Buffer_data), g_Vertex_Buffer_data, GL_STATIC_DRAW);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
-	glEnableVertexAttribArray(0);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
 	glBindVertexArray(0);
-	*/
+	
 
-
+	/*
 	//Cube VAO
 	glGenVertexArrays(1, &VAO_2);
 	glGenBuffers(1, &VBO_2);
@@ -385,7 +394,7 @@ void init() {
 	glEnableVertexAttribArray(2);
 	glBindVertexArray(0);
 
-
+	*/
 	//Quad VAO
 	glGenVertexArrays(1, &vao_screen);
 	glGenBuffers(1, &vbo_screen);
@@ -397,8 +406,8 @@ void init() {
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 	glBindVertexArray(0);
-
-
+	
+	
 	//Frame Buffer
 	glGenFramebuffers(1, &framebuffer);
 	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
@@ -445,10 +454,10 @@ void init() {
 	//checking whether the frame buffer is complete
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	//glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 
 	//glDeleteFramebuffers(1, &framebuffer);
-
+	
 
 	// Or, for an ortho camera :
 	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
