@@ -44,8 +44,8 @@ GLuint renderbuf;
 
 texture Wood_texture, floor_texture;
 
-//shader shader_main;
-//shader shader_floor;
+shader shader_main;
+shader shader_floor;
 shader shader_screen;
 shader shader_triangle;
 
@@ -98,9 +98,8 @@ int main()
 
 	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
-	//shader shader_main;
-	//shader_main.loadshader("vertex_shader.vert", "fragment_shader.frag");
-	//shader_floor.loadshader("vertexshader_floor.vert", "fragmentshader_floor.frag");
+	shader_main.loadshader("vertex_shader.vert", "fragment_shader.frag");
+	shader_floor.loadshader("vertexshader_floor.vert", "fragmentshader_floor.frag");
 	shader_screen.loadshader("vertexshader_screen.vert", "fragmentshader_screen.frag");
 	shader_triangle.loadshader("vertex_tri.vert", "fragment_tri.frag");
 	init();
@@ -124,7 +123,7 @@ int main()
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
-	//glDeleteFramebuffers(1, &framebuffer);
+	glDeleteFramebuffers(1, &framebuffer);
 	glfwTerminate();
 	return 0;
 }
@@ -136,14 +135,14 @@ void render()
 		// draw as wireframe
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		// Camera matrix
-		/*View = glm::lookAt(
+		View = glm::lookAt(
 			glm::vec3(camX, camY, camZ), // Camera is at (4,3,3), in World Space
 			glm::vec3(0, 0, 0), // and looks at the origin
 			glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
 		);
 
 		Model = glm::mat4();
-		*/
+		
 		
 
 
@@ -153,24 +152,21 @@ void render()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 		
-		//glEnable(GL_DEPTH_TEST);
+		glEnable(GL_DEPTH_TEST);
 
-		shader_triangle.Use();
+		/*shader_triangle.Use();
 
 		//simple triangle
 		glBindVertexArray(VertexArrayID);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
+		*/
 
 
-
-	/*	shader_main.Use();
+		shader_main.Use();
 
 		glUniformMatrix4fv(glGetUniformLocation(shader_main.program, "view"), 1, GL_FALSE, glm::value_ptr(View));
 		glUniformMatrix4fv(glGetUniformLocation(shader_main.program, "projection"), 1, GL_FALSE, glm::value_ptr(Projection));
-
-
-		
 
 
 		//cube_vao:
@@ -201,7 +197,7 @@ void render()
 		glDrawArrays(GL_TRIANGLES, 0, 6); // Starting from vertex 0; 3 vertices total -> 1 triangle
 		glBindVertexArray(0);
 
-		*/
+		
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
@@ -329,7 +325,7 @@ void init() {
 		1.0f,  1.0f,0.0f,  1.0f, 1.0f
 
 	};
-/*
+
 	//wooden texture
 	Wood_texture.loadtexture("wooden_texture.jpg");
 
@@ -356,7 +352,7 @@ void init() {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
-	*/
+	
 
 	
 	glGenVertexArrays(1, &VertexArrayID);
@@ -369,7 +365,7 @@ void init() {
 	glBindVertexArray(0);
 	
 
-	/*
+	
 	//Cube VAO
 	glGenVertexArrays(1, &VAO_2);
 	glGenBuffers(1, &VBO_2);
@@ -394,7 +390,7 @@ void init() {
 	glEnableVertexAttribArray(2);
 	glBindVertexArray(0);
 
-	*/
+	
 	//Quad VAO
 	glGenVertexArrays(1, &vao_screen);
 	glGenBuffers(1, &vbo_screen);
@@ -416,7 +412,6 @@ void init() {
 	glGenTextures(1, &texture_framebuf);
 	glBindTexture(GL_TEXTURE_2D, texture_framebuf);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-
 
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -455,8 +450,8 @@ void init() {
 	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
 		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-	//glDeleteFramebuffers(1, &framebuffer);
+	glDeleteFramebuffers(1, &framebuffer);
+	
 	
 
 	// Or, for an ortho camera :
