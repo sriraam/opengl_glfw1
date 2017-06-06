@@ -13,8 +13,8 @@ void render();
 void init();
 
 // settings
-const unsigned int SCR_WIDTH = 800;
-const unsigned int SCR_HEIGHT = 600;
+ unsigned int SCR_WIDTH = 800;
+ unsigned int SCR_HEIGHT = 600;
 
 
 GLuint VertexArrayID;
@@ -53,7 +53,11 @@ shader shader_triangle;
 //glGenVertexArrays(1, &VertexArrayID);
 
 // Camera Position
+
 float camX, camY, camZ;
+glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
+glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 // Mouse Tracking Variables
 int startX, startY, tracking = 0;
@@ -96,7 +100,6 @@ int main()
 		return -1;
 	}
 
-	glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
 	shader_main.loadshader("vertex_shader.vert", "fragment_shader.frag");
 	shader_floor.loadshader("vertexshader_floor.vert", "fragmentshader_floor.frag");
@@ -132,26 +135,23 @@ int main()
 void render() 
 
 	{
-		// draw as wireframe
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		// Camera matrix
-		View = glm::lookAt(
-			glm::vec3(camX, camY, camZ), // Camera is at (4,3,3), in World Space
-			glm::vec3(0, 0, 0), // and looks at the origin
-			glm::vec3(0, 1, 0)  // Head is up (set to 0,-1,0 to look upside-down)
-		);
+		
+
+
+	View = glm::lookAt(cameraPos,cameraPos + cameraFront,cameraUp);
 
 		Model = glm::mat4();
-		
-		
+		//Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
+		
+		// draw as wireframe
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
-		glClearColor(0.0f, 1.0f, 0.1f, 1.0f);
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		//glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		
+	  
 		glEnable(GL_DEPTH_TEST);
 
 		/*shader_triangle.Use();
@@ -197,9 +197,9 @@ void render()
 		glDrawArrays(GL_TRIANGLES, 0, 6); // Starting from vertex 0; 3 vertices total -> 1 triangle
 		glBindVertexArray(0);
 
-		
 
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
 		//glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 		//glClear(GL_COLOR_BUFFER_BIT);
 		glClearColor(1, 1, 1, 1);
@@ -208,6 +208,9 @@ void render()
 		
 		glDisable(GL_DEPTH);
 
+		// draw as wireframe
+		//glPolygonMode(GL_BACK, GL_TRIANGLES);
+		//glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
 
 
 		shader_screen.Use();
@@ -230,11 +233,12 @@ void render()
 void init() {
 	// Generate 1 buffer, put the resulting identifier in vertexbuffer
 
-
+	/*
 	// set the camera position based on its spherical coordinates
 	camX = r * sin(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
 	camZ = r * cos(alpha * 3.14f / 180.0f) * cos(beta * 3.14f / 180.0f);
 	camY = r *   						     sin(beta * 3.14f / 180.0f);
+	*/
 
 	Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
@@ -459,8 +463,26 @@ void init() {
 // ---------------------------------------------------------------------------------------------------------
 void processInput(GLFWwindow *window)
 {
+	float speed = .05f;
+
 	if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
 		glfwSetWindowShouldClose(window, true);
+	if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+	{
+		cameraPos += speed * (cameraFront);
+	}
+	if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+	{
+		cameraPos -= speed * (cameraFront);
+	}
+	if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+	{
+		cameraPos -= speed * glm::normalize(glm::cross(cameraFront, cameraUp));
+	}
+	if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+	{
+		cameraPos += speed * glm::normalize(glm::cross(cameraFront, cameraUp));
+	}
 }
 
 
@@ -470,6 +492,9 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
+	SCR_WIDTH = width;
+	SCR_HEIGHT = height;
+	//std::cout << "heigth :" << height << " width :" << width;
 	glViewport(0, 0, width, height);
 	Projection = glm::perspective(glm::radians(45.0f), (float)width/ (float)height, 0.1f, 100.0f);
 
