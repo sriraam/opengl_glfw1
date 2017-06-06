@@ -55,12 +55,15 @@ shader shader_triangle;
 // Camera Position
 
 float camX, camY, camZ;
-glm::vec3 cameraPos = glm::vec3(0.0f, 0.0f, 3.0f);
+glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 3.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
 // Mouse Tracking Variables
 int startX, startY, tracking = 0;
+
+int new_height,new_width;
+
 
 // Camera Spherical Coordinates
 float alpha = 40.0f, beta = 45.0f;
@@ -81,7 +84,7 @@ int main()
 
 	// glfw window creation
 	// --------------------
-    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "LearnOpenGL", NULL, NULL);
+    window = glfwCreateWindow(SCR_WIDTH, SCR_HEIGHT, "Blending", NULL, NULL);
 	if (window == NULL)
 	{
 		std::cout << "Failed to create GLFW window" << std::endl;
@@ -116,10 +119,6 @@ int main()
 
 		processInput(window);
 		render();
-
-		// glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-		// -------------------------------------------------------------------------------
-		//glClear(GL_COLOR_BUFFER_BIT);
 		glfwSwapBuffers(window);
 		glfwPollEvents();
 	}
@@ -132,27 +131,22 @@ int main()
 }
 
 
+
 void render() 
 
 	{
-		
 
-
-	View = glm::lookAt(cameraPos,cameraPos + cameraFront,cameraUp);
-
+		View = glm::lookAt(cameraPos,glm::vec3(cameraPos.x,1.5,cameraPos.z) +  cameraFront,cameraUp);
 		Model = glm::mat4();
-		//Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
-
 		
 		// draw as wireframe
 		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		
 
-		glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
 
 		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	  
-		glEnable(GL_DEPTH_TEST);
 
 		/*shader_triangle.Use();
 
@@ -161,7 +155,6 @@ void render()
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
 		*/
-
 
 		shader_main.Use();
 
@@ -196,38 +189,6 @@ void render()
 		glUniformMatrix4fv(glGetUniformLocation(shader_floor.program, "model"), 1, GL_FALSE, glm::value_ptr(Model));
 		glDrawArrays(GL_TRIANGLES, 0, 6); // Starting from vertex 0; 3 vertices total -> 1 triangle
 		glBindVertexArray(0);
-
-
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-
-		//glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-		//glClear(GL_COLOR_BUFFER_BIT);
-		glClearColor(1, 1, 1, 1);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		
-		
-		glDisable(GL_DEPTH);
-
-		// draw as wireframe
-		//glPolygonMode(GL_BACK, GL_TRIANGLES);
-		//glViewport(0, 0, SCR_WIDTH, SCR_HEIGHT);
-
-
-		shader_screen.Use();
-
-		glUniform1i(glGetUniformLocation(shader_screen.program, "screentexture"), 0);
-
-		glActiveTexture(GL_TEXTURE0);
-		glBindTexture(GL_TEXTURE_2D, texture_framebuf);
-		glBindVertexArray(vao_screen);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
-		glBindVertexArray(0);
-		
-		//glClear(GL_COLOR_BUFFER_BIT);
-		//glfwSwapBuffers(window);
-		
-
-
 }
 
 void init() {
@@ -242,11 +203,9 @@ void init() {
 
 	Projection = glm::perspective(glm::radians(45.0f), (float)SCR_WIDTH / (float)SCR_HEIGHT, 0.1f, 100.0f);
 
-	//Projection = glm::perspective(glm::radians(45.0f), (float)640 / (float)480, 0.1f, 100.0f);
-	// some GL settings
 
 	//glEnable(GL_CULL_FACE);
-
+	glEnable(GL_DEPTH_TEST);
 
 	//So we need three 3D points in order to make a triangle
 	static const GLfloat g_Vertex_Buffer_data[] = {
@@ -408,49 +367,6 @@ void init() {
 	glBindVertexArray(0);
 	
 	
-	//Frame Buffer
-	glGenFramebuffers(1, &framebuffer);
-	glBindFramebuffer(GL_FRAMEBUFFER, framebuffer);
-
-	//texture attachment(it samples)
-	glGenTextures(1, &texture_framebuf);
-	glBindTexture(GL_TEXTURE_2D, texture_framebuf);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, SCR_WIDTH, SCR_HEIGHT, 0, GL_RGB, GL_UNSIGNED_BYTE, 0);
-
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-	
-	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	//glGenerateMipmap(GL_TEXTURE_2D);
-
-	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-
-	glBindTexture(GL_TEXTURE_2D, 0);
-	glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, texture_framebuf, 0);
-
-	//
-
-	//render attachment(has depth values)
-
-	glGenRenderbuffers(1, &renderbuf);
-	glBindRenderbuffer(GL_RENDERBUFFER, renderbuf);
-	glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH_COMPONENT, SCR_WIDTH, SCR_HEIGHT);
-	glBindRenderbuffer(GL_RENDERBUFFER, 0);
-
-	glFramebufferRenderbuffer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_RENDERBUFFER, renderbuf);
-
-
-
-	//checking whether the frame buffer is complete
-	if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE)
-		std::cout << "ERROR::FRAMEBUFFER:: Framebuffer is not complete!" << std::endl;
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-	//glDeleteFramebuffers(1, &framebuffer);
 	
 	
 
@@ -492,9 +408,7 @@ void framebuffer_size_callback(GLFWwindow* window, int width, int height)
 {
 	// make sure the viewport matches the new window dimensions; note that width and 
 	// height will be significantly larger than specified on retina displays.
-	SCR_WIDTH = width;
-	SCR_HEIGHT = height;
-	//std::cout << "heigth :" << height << " width :" << width;
+	
 	glViewport(0, 0, width, height);
 	Projection = glm::perspective(glm::radians(45.0f), (float)width/ (float)height, 0.1f, 100.0f);
 
