@@ -163,14 +163,15 @@
   <ItemGroup>
     <Image Include="container2.png" />
     <Image Include="floor.jpg" />
+    <Image Include="grass_texture.png" />
     <Image Include="wooden_texture.jpg" />
   </ItemGroup>
   <ItemGroup>
     <None Include="fragmentshader_floor.frag" />
-    <None Include="fragmentshader_screen.frag" />
+    <None Include="fragmentshader_grass.frag" />
     <None Include="fragment_shader.frag" />
     <None Include="vertexshader_floor.vert" />
-    <None Include="vertexshader_screen.vert" />
+    <None Include="vertexshader_grass.vert" />
     <None Include="vertex_shader.vert" />
   </ItemGroup>
   <ItemGroup>

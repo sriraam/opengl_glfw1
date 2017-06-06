@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 #include<glm/glm.hpp>
 #include<glm/ext.hpp>
+#include<vector>
 #include <iostream>
 
 #include"texture.h"
@@ -23,6 +24,10 @@ glm::mat4 View, Model, Projection;
 
 GLint modelLoc, viewLoc, projLoc;
 
+//glm::vec3 grass_pos;
+std::vector<glm::vec3> grass_pos;
+
+
 GLuint lightcolor_loc, materialcolor_loc;
 GLuint lightposLoc;
 GLuint MatrixID;
@@ -30,23 +35,21 @@ GLuint MatrixID;
 GLuint VertexBuffer;
 GLuint VertexBuffer2;
 
-GLuint framebuffer;
 
-GLuint VAO_2, vao_floor, vao_screen;
-GLuint VBO_2, vbo_floor, vbo_screen;
+GLuint VAO_2, vao_floor, vao_grass;
+GLuint VBO_2, vbo_floor, vbo_grass;
 
 GLuint texture1;
 GLuint texture_floor;
-GLuint texture_framebuf;
+GLuint texture_grass;
 
 GLuint renderbuf;
 
-
-texture Wood_texture, floor_texture;
+texture Wood_texture, floor_texture,grass_texture;
 
 shader shader_main;
+shader shader_grass;
 shader shader_floor;
-shader shader_screen;
 shader shader_triangle;
 
 //GLuint g_ShaderProgram = 0;
@@ -106,7 +109,7 @@ int main()
 
 	shader_main.loadshader("vertex_shader.vert", "fragment_shader.frag");
 	shader_floor.loadshader("vertexshader_floor.vert", "fragmentshader_floor.frag");
-	shader_screen.loadshader("vertexshader_screen.vert", "fragmentshader_screen.frag");
+	shader_grass.loadshader("vertexshader_grass.vert", "fragmentshader_grass.frag");
 	shader_triangle.loadshader("vertex_tri.vert", "fragment_tri.frag");
 	init();
 
@@ -125,70 +128,8 @@ int main()
 
 	// glfw: terminate, clearing all previously allocated GLFW resources.
 	// ------------------------------------------------------------------
-	glDeleteFramebuffers(1, &framebuffer);
 	glfwTerminate();
 	return 0;
-}
-
-
-
-void render() 
-
-	{
-
-		View = glm::lookAt(cameraPos,glm::vec3(cameraPos.x,1.5,cameraPos.z) +  cameraFront,cameraUp);
-		Model = glm::mat4();
-		
-		// draw as wireframe
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-		
-
-
-		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	  
-
-		/*shader_triangle.Use();
-
-		//simple triangle
-		glBindVertexArray(VertexArrayID);
-		glDrawArrays(GL_TRIANGLES, 0, 3);
-		glBindVertexArray(0);
-		*/
-
-		shader_main.Use();
-
-		glUniformMatrix4fv(glGetUniformLocation(shader_main.program, "view"), 1, GL_FALSE, glm::value_ptr(View));
-		glUniformMatrix4fv(glGetUniformLocation(shader_main.program, "projection"), 1, GL_FALSE, glm::value_ptr(Projection));
-
-
-		//cube_vao:
-		glBindVertexArray(VAO_2);
-		glBindTexture(GL_TEXTURE_2D, texture1);
-		glActiveTexture(0);
-		glUniform1i(glGetUniformLocation(shader_main.program, "texture_1"), 0);
-		Model = glm::translate(Model, glm::vec3(1.0f, 0.0f, -1.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader_main.program, "model"), 1, GL_FALSE, glm::value_ptr(Model));
-		glDrawArrays(GL_TRIANGLES, 0, 36); // Starting from vertex 0; 3 vertices total -> 1 triangle
-		Model = glm::translate(Model, glm::vec3(-2.0, 0.0f, 2.0f));
-		glUniformMatrix4fv(glGetUniformLocation(shader_main.program, "model"), 1, GL_FALSE, glm::value_ptr(Model));
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glBindVertexArray(0);
-
-		shader_floor.Use();
-
-		glUniformMatrix4fv(glGetUniformLocation(shader_floor.program, "view"), 1, GL_FALSE, glm::value_ptr(View));
-		glUniformMatrix4fv(glGetUniformLocation(shader_floor.program, "projection"), 1, GL_FALSE, glm::value_ptr(Projection));
-
-		//floor_vao:
-		glBindVertexArray(vao_floor);
-		glBindTexture(GL_TEXTURE_2D, texture_floor);
-		glUniform1i(glGetUniformLocation(shader_floor.program, "floor_texture"), 0);
-		//Model = glm::translate(Model, glm::vec3(-1.0f, -1.0f, -1.0f));
-		Model = glm::mat4();
-		glUniformMatrix4fv(glGetUniformLocation(shader_floor.program, "model"), 1, GL_FALSE, glm::value_ptr(Model));
-		glDrawArrays(GL_TRIANGLES, 0, 6); // Starting from vertex 0; 3 vertices total -> 1 triangle
-		glBindVertexArray(0);
 }
 
 void init() {
@@ -260,23 +201,16 @@ void init() {
 	};
 
 	GLfloat floor_vertices[] = {
-		5.0f,  -0.5f,  5.0f,  2.0f, 0.0f,
-		-5.0f, -0.5f,  5.0f,  0.0f, 0.0f,
-		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
+		7.0f,  -0.5f,  7.0f,  2.0f, 0.0f,
+		-7.0f, -0.5f,  7.0f,  0.0f, 0.0f,
+		-7.0f, -0.5f, -7.0f,  0.0f, 2.0f,
 
-		5.0f,  -0.5f,  5.0f,  2.0f, 0.0f,
-		-5.0f, -0.5f, -5.0f,  0.0f, 2.0f,
-		5.0f,  -0.5f, -5.0f,  2.0f, 2.0f
+		7.0f,  -0.5f,  7.0f,  2.0f, 0.0f,
+		-7.0f, -0.5f, -7.0f,  0.0f, 2.0f,
+		7.0f,  -0.5f, -7.0f,  2.0f, 2.0f
 	};
 
 	GLfloat Quad[] = {
-		/*
-		-1, 1, 0, 0,1,
-		1, 1, 0, 1,1,
-		1,-1, 0, 1,0,
-		1,-1, 0, 1,0,
-		-1,-1, 0, 0,0,
-		-1, 1, 0, 0,1*/
 
 		// positions   // texCoords
 		-1.0f,  1.0f,0.0f,  0.0f, 1.0f,
@@ -288,6 +222,31 @@ void init() {
 		1.0f,  1.0f,0.0f,  1.0f, 1.0f
 
 	};
+
+  
+	    grass_pos.push_back(glm::vec3(-0.5, 0, 0));
+	    grass_pos.push_back(glm::vec3(-2, 0, 2)); 
+		grass_pos.push_back(glm::vec3(3, 0, 0));
+		grass_pos.push_back(glm::vec3(1.3, 0, -3));
+		grass_pos.push_back(glm::vec3(-3, 0, -1));
+		grass_pos.push_back(glm::vec3(4, 0, 5));
+		
+	
+
+	//grass texture
+	grass_texture.loadtexture("grass_texture.png");
+	
+	glGenTextures(1, &texture_grass);
+	glBindTexture(GL_TEXTURE_2D, texture_grass);
+
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, grass_texture.Width, grass_texture.Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, grass_texture.Data);
+    
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glGenerateMipmap(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D,0);
+
 
 	//wooden texture
 	Wood_texture.loadtexture("wooden_texture.jpg");
@@ -315,9 +274,9 @@ void init() {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
 	glBindTexture(GL_TEXTURE_2D, 0);
-	
 
-	
+
+
 	glGenVertexArrays(1, &VertexArrayID);
 	glGenBuffers(1, &VertexBuffer);
 	glBindVertexArray(VertexArrayID);
@@ -326,9 +285,9 @@ void init() {
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(1);
 	glBindVertexArray(0);
-	
 
-	
+
+
 	//Cube VAO
 	glGenVertexArrays(1, &VAO_2);
 	glGenBuffers(1, &VBO_2);
@@ -353,27 +312,108 @@ void init() {
 	glEnableVertexAttribArray(2);
 	glBindVertexArray(0);
 
-	
+
 	//Quad VAO
-	glGenVertexArrays(1, &vao_screen);
-	glGenBuffers(1, &vbo_screen);
-	glBindVertexArray(vao_screen);
-	glBindBuffer(GL_ARRAY_BUFFER, vbo_screen);
+	glGenVertexArrays(1, &vao_grass);
+	glGenBuffers(1, &vbo_grass);
+	glBindVertexArray(vao_grass);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo_grass);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(Quad), Quad, GL_STATIC_DRAW);
 	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)0);
 	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(1);
 	glEnableVertexAttribArray(2);
 	glBindVertexArray(0);
-	
-	
-	
-	
+
+
+
+
 
 	// Or, for an ortho camera :
 	//glm::mat4 Projection = glm::ortho(-10.0f,10.0f,-10.0f,10.0f,0.0f,100.0f); // In world coordinates
 
 }
+
+void render() 
+
+	{
+
+		View = glm::lookAt(cameraPos,glm::vec3(cameraPos.x,1.5,cameraPos.z) +  cameraFront,cameraUp);
+		Model = glm::mat4();
+		
+		// draw as wireframe
+		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+		
+
+
+		glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	  
+
+		/*shader_triangle.Use();
+
+		//simple triangle
+		glBindVertexArray(VertexArrayID);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glBindVertexArray(0);
+		*/
+
+		shader_main.Use();
+
+		glUniformMatrix4fv(glGetUniformLocation(shader_main.program, "view"), 1, GL_FALSE, glm::value_ptr(View));
+		glUniformMatrix4fv(glGetUniformLocation(shader_main.program, "projection"), 1, GL_FALSE, glm::value_ptr(Projection));
+
+
+		//cube_vao:
+		glBindVertexArray(VAO_2);
+		glBindTexture(GL_TEXTURE_2D, texture1);
+		glActiveTexture(0);
+		glUniform1i(glGetUniformLocation(shader_main.program, "texture_1"), 0);
+		Model = glm::translate(Model, glm::vec3(1.0f, 0.0f, -1.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader_main.program, "model"), 1, GL_FALSE, glm::value_ptr(Model));
+		glDrawArrays(GL_TRIANGLES, 0, 36); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		Model = glm::translate(Model, glm::vec3(-2.0, 0.0f, 2.0f));
+		glUniformMatrix4fv(glGetUniformLocation(shader_main.program, "model"), 1, GL_FALSE, glm::value_ptr(Model));
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glBindVertexArray(0);
+
+		shader_floor.Use();
+
+		glUniformMatrix4fv(glGetUniformLocation(shader_floor.program, "view"), 1, GL_FALSE, glm::value_ptr(View));
+		glUniformMatrix4fv(glGetUniformLocation(shader_floor.program, "projection"), 1, GL_FALSE, glm::value_ptr(Projection));
+
+		//floor_vao:
+		glBindVertexArray(vao_floor);
+		glBindTexture(GL_TEXTURE_2D, texture_floor);
+		glUniform1i(glGetUniformLocation(shader_floor.program, "floor_texture"), 0);
+		//Model = glm::translate(Model, glm::vec3(-1.0f, -1.0f, -1.0f));
+		Model = glm::mat4();
+		glUniformMatrix4fv(glGetUniformLocation(shader_floor.program, "model"), 1, GL_FALSE, glm::value_ptr(Model));
+		glDrawArrays(GL_TRIANGLES, 0, 6); // Starting from vertex 0; 3 vertices total -> 1 triangle
+		glBindVertexArray(0);
+
+		shader_grass.Use();
+		
+		glUniformMatrix4fv(glGetUniformLocation(shader_grass.program, "view"), 1, GL_FALSE, glm::value_ptr(View));
+		glUniformMatrix4fv(glGetUniformLocation(shader_grass.program, "projection"), 1, GL_FALSE, glm::value_ptr(Projection));
+
+
+		//grass vao
+		glBindVertexArray(vao_grass);
+		glBindTexture(GL_TEXTURE_2D, texture_grass);
+		glUniform1i(glGetUniformLocation(shader_grass.program, "grasstexture"),0);
+		for (int i = 0; i < grass_pos.size(); i++) {
+			Model = glm::mat4();
+			Model = glm::translate(Model,grass_pos[i]);
+			glUniformMatrix4fv(glGetUniformLocation(shader_grass.program, "model"), 1, GL_FALSE, glm::value_ptr(Model));
+			glDrawArrays(GL_TRIANGLES, 0, 6);
+		}
+
+		glBindVertexArray(0);
+
+}
+
+
 
 // process all input: query GLFW whether relevant keys are pressed/released this frame and react accordingly
 // ---------------------------------------------------------------------------------------------------------
