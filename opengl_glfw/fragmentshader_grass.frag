@@ -8,7 +8,12 @@ uniform sampler2D grasstexture;
 
 
 void main(){
-color = texture(grasstexture,texture_coord);
+vec4 temp_texture = texture(grasstexture,texture_coord);
+if(temp_texture.a < 0.1){
+  discard;
+}
+color = temp_texture;
+
 
 }
 

@@ -225,7 +225,7 @@ void init() {
 
   
 	    grass_pos.push_back(glm::vec3(-0.5, 0, 0));
-	    grass_pos.push_back(glm::vec3(-2, 0, 2)); 
+	    grass_pos.push_back(glm::vec3(-1, 0, 2)); 
 		grass_pos.push_back(glm::vec3(3, 0, 0));
 		grass_pos.push_back(glm::vec3(1.3, 0, -3));
 		grass_pos.push_back(glm::vec3(-3, 0, -1));
