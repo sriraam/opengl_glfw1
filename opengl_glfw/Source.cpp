@@ -3,6 +3,7 @@
 #include<glm/glm.hpp>
 #include<glm/ext.hpp>
 #include<vector>
+#include<map>
 #include <iostream>
 
 #include"texture.h"
@@ -26,7 +27,7 @@ GLint modelLoc, viewLoc, projLoc;
 
 //glm::vec3 grass_pos;
 std::vector<glm::vec3> grass_pos;
-
+std::map<float, glm::vec3> sorted_glass;
 
 GLuint lightcolor_loc, materialcolor_loc;
 GLuint lightposLoc;
@@ -52,13 +53,14 @@ shader shader_grass;
 shader shader_floor;
 shader shader_triangle;
 
+
 //GLuint g_ShaderProgram = 0;
 //glGenVertexArrays(1, &VertexArrayID);
 
 // Camera Position
 
 float camX, camY, camZ;
-glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 3.0f);
+glm::vec3 cameraPos = glm::vec3(0.0f, 2.0f, 5.0f);
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);
 glm::vec3 cameraUp = glm::vec3(0.0f, 1.0f, 0.0f);
 
@@ -147,6 +149,11 @@ void init() {
 
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	
+
 
 	//So we need three 3D points in order to make a triangle
 	static const GLfloat g_Vertex_Buffer_data[] = {
@@ -159,15 +166,15 @@ void init() {
 		// Positions          // Texture Coords
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 		0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	   	0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 	0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
 
 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
 		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
 		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
 
@@ -224,17 +231,29 @@ void init() {
 	};
 
   
-	    grass_pos.push_back(glm::vec3(-0.5, 0, 0));
+	    grass_pos.push_back(glm::vec3(-2, 0, 0));
 	    grass_pos.push_back(glm::vec3(-1, 0, 2)); 
 		grass_pos.push_back(glm::vec3(3, 0, 0));
 		grass_pos.push_back(glm::vec3(1.3, 0, -3));
 		grass_pos.push_back(glm::vec3(-3, 0, -1));
-		grass_pos.push_back(glm::vec3(4, 0, 5));
+		grass_pos.push_back(glm::vec3(2, 0, 3));
+		grass_pos.push_back(glm::vec3(2, 0, 3));
+		grass_pos.push_back(glm::vec3(0, 0, 4));
+		grass_pos.push_back(glm::vec3(1.5, 0, 3));
+		//grass_pos.push_back(glm::vec3(0, 0, 2));
 		
-	
+
+		//arranging in the order from large distance to small
+		for (int i = 0; i < grass_pos.size(); i++) {
+
+			float distance = glm::length(cameraPos - grass_pos[i]);
+			sorted_glass[distance] = grass_pos[i];
+
+		}
+
 
 	//grass texture
-	grass_texture.loadtexture("grass_texture.png");
+	grass_texture.loadtexture("red_glass.png");
 	
 	glGenTextures(1, &texture_grass);
 	glBindTexture(GL_TEXTURE_2D, texture_grass);
@@ -402,9 +421,16 @@ void render()
 		glBindVertexArray(vao_grass);
 		glBindTexture(GL_TEXTURE_2D, texture_grass);
 		glUniform1i(glGetUniformLocation(shader_grass.program, "grasstexture"),0);
-		for (int i = 0; i < grass_pos.size(); i++) {
+		
+		//std::map<float, glm::vec3>::reverse_iterator it = sorted_glass.rbegin();
+		for (std::map<float, glm::vec3>::reverse_iterator it = sorted_glass.rbegin() ; it != sorted_glass.rend() ; ++it) {
+			//std::cout << sorted_glass.count() << std::endl;
 			Model = glm::mat4();
-			Model = glm::translate(Model,grass_pos[i]);
+			//this "it" is an reverse iterator assigned to sorted_glass map
+			//it point various index of sorted_glass map acc to loop
+			//it can choose first or second val of the map
+			Model = glm::translate(Model,it->second);
+			
 			glUniformMatrix4fv(glGetUniformLocation(shader_grass.program, "model"), 1, GL_FALSE, glm::value_ptr(Model));
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}

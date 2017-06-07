@@ -46,6 +46,12 @@
     <Image Include="grass_texture.png">
       <Filter>Resource Files</Filter>
     </Image>
+    <Image Include="blue_glass.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="red_glass.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <None Include="fragment_shader.frag">

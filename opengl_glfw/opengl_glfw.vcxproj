@@ -161,9 +161,11 @@
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="blue_glass.png" />
     <Image Include="container2.png" />
     <Image Include="floor.jpg" />
     <Image Include="grass_texture.png" />
+    <Image Include="red_glass.png" />
     <Image Include="wooden_texture.jpg" />
   </ItemGroup>
   <ItemGroup>

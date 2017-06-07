@@ -11,9 +11,8 @@ void main(){
 vec4 temp_texture = texture(grasstexture,texture_coord);
 if(temp_texture.a < 0.1){
   discard;
-}
+ }
 color = temp_texture;
-
 
 }
 
