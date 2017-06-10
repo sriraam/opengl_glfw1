@@ -36,22 +36,26 @@ GLuint MatrixID;
 GLuint VertexBuffer;
 GLuint VertexBuffer2;
 
+std::vector<std::string> faces;
 
-GLuint VAO_2, vao_floor, vao_grass;
-GLuint VBO_2, vbo_floor, vbo_grass;
+GLuint VAO_2, vao_floor, vao_grass,vao_skybox;
+GLuint VBO_2, vbo_floor, vbo_grass,vbo_skybox;
 
 GLuint texture1;
 GLuint texture_floor;
 GLuint texture_grass;
+GLuint texture_sky;
+GLuint texture_sky1;
 
 GLuint renderbuf;
 
-texture Wood_texture, floor_texture,grass_texture;
+texture Wood_texture, floor_texture,grass_texture,cube_texture;
 
 shader shader_main;
 shader shader_grass;
 shader shader_floor;
 shader shader_triangle;
+shader shader_skybox;
 
 
 //GLuint g_ShaderProgram = 0;
@@ -113,6 +117,7 @@ int main()
 	shader_floor.loadshader("vertexshader_floor.vert", "fragmentshader_floor.frag");
 	shader_grass.loadshader("vertexshader_grass.vert", "fragmentshader_grass.frag");
 	shader_triangle.loadshader("vertex_tri.vert", "fragment_tri.frag");
+	shader_skybox.loadshader("vertexshader_sky.vert", "fragmentshader_sky.frag");
 	init();
 
 	// render loop
@@ -134,6 +139,34 @@ int main()
 	return 0;
 }
 
+GLuint load_skybox(std::vector<std::string>) {
+
+	glGenTextures(1, &texture_sky);
+	glBindTexture(GL_TEXTURE_CUBE_MAP, texture_sky);
+
+	for (int i = 0; i < faces.size(); i++)  {
+		cube_texture.loadtexture(faces[i]);
+		if (cube_texture.Data) {
+			glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, GL_RGB, cube_texture.Width, cube_texture.Height, 0, GL_RGB, GL_UNSIGNED_BYTE, cube_texture.Data);
+		}
+		else {
+			std::cout << "cube map loading is failed";
+		}
+	}
+	//glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+    glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, GL_CLAMP_TO_EDGE);
+
+	
+
+	return texture_sky;
+}
+
+
 void init() {
 	// Generate 1 buffer, put the resulting identifier in vertexbuffer
 
@@ -150,6 +183,7 @@ void init() {
 	//glEnable(GL_CULL_FACE);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
+	//for semitransparent material to compute the destination obj color with src alpha 
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	
@@ -205,6 +239,51 @@ void init() {
 		0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
 		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+	};
+
+	float skyboxVertices[] = {
+		// positions          
+		-1.0f,  1.0f, -1.0f,
+		-1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f, -1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+
+		-1.0f, -1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f,
+		-1.0f, -1.0f,  1.0f,
+
+		-1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f, -1.0f,
+		1.0f,  1.0f,  1.0f,
+		1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f,  1.0f,
+		-1.0f,  1.0f, -1.0f,
+
+		-1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f, -1.0f,
+		1.0f, -1.0f, -1.0f,
+		-1.0f, -1.0f,  1.0f,
+		1.0f, -1.0f,  1.0f
 	};
 
 	GLfloat floor_vertices[] = {
@@ -345,7 +424,26 @@ void init() {
 	glBindVertexArray(0);
 
 
+	//sky_box VAO
+	glGenVertexArrays(1, &vao_skybox);
+	glGenBuffers(1, &vbo_skybox);
+	glBindVertexArray(vao_skybox);
+	glBindBuffer(GL_ARRAY_BUFFER,vbo_skybox);
+	glBufferData(GL_ARRAY_BUFFER,sizeof(skyboxVertices),skyboxVertices,GL_STATIC_DRAW);
+	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(GLfloat), (GLvoid*)0);
+	glEnableVertexAttribArray(1);
+	glBindVertexArray(0);
 
+	 faces={
+		"right.jpg",
+		"left.jpg",
+		"top.jpg",
+		"bottom.jpg",
+		"back.jpg",
+		"front.jpg"
+	};
+
+	texture_sky1 = load_skybox(faces);
 
 
 	// Or, for an ortho camera :
@@ -376,6 +474,20 @@ void render()
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 		glBindVertexArray(0);
 		*/
+
+
+		shader_skybox.Use();
+		glDepthMask(GL_FALSE);
+		glm::mat4 View_33 = glm::mat4(glm::mat3(View));
+		glUniformMatrix4fv(glGetUniformLocation(shader_skybox.program, "view"), 1, GL_FALSE, glm::value_ptr(View_33));
+		glUniformMatrix4fv(glGetUniformLocation(shader_skybox.program, "projection"), 1, GL_FALSE, glm::value_ptr(Projection));
+		glBindTexture(GL_TEXTURE_CUBE_MAP, texture_sky1);
+		glBindVertexArray(vao_skybox);
+		
+		//glActiveTexture(0);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDepthMask(GL_TRUE);
+		glBindVertexArray(0);
 
 		shader_main.Use();
 
@@ -436,6 +548,10 @@ void render()
 		}
 
 		glBindVertexArray(0);
+
+		
+
+
 
 }
 

@@ -161,11 +161,17 @@
     <ClInclude Include="texture.h" />
   </ItemGroup>
   <ItemGroup>
+    <Image Include="back.jpg" />
     <Image Include="blue_glass.png" />
+    <Image Include="bottom.jpg" />
     <Image Include="container2.png" />
     <Image Include="floor.jpg" />
+    <Image Include="front.jpg" />
     <Image Include="grass_texture.png" />
+    <Image Include="left.jpg" />
     <Image Include="red_glass.png" />
+    <Image Include="right.jpg" />
+    <Image Include="top.jpg" />
     <Image Include="wooden_texture.jpg" />
   </ItemGroup>
   <ItemGroup>
@@ -178,6 +184,8 @@
   </ItemGroup>
   <ItemGroup>
     <Text Include="fragment_tri.frag" />
+    <Text Include="fragmentshader_sky.frag" />
+    <Text Include="vertexshader_sky.vert" />
     <Text Include="vertex_tri.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
